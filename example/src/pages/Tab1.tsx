@@ -11,7 +11,19 @@ import { BRAND_NAME } from '../const/global';
 
 import { CapacitorNativePhotoGallery } from 'capacitor-native-photo-gallery';
 
+export interface PictureInfo {
+  localIdentifier: string;
+  base64: string;
+  creationDate: string;
+  modificationDate: string;
+  width: number;
+  height: number;
+  location: { latitude: number; longitude: number };
+}
+
 const Tab1: React.FC = () => {
+  const [photos, setPhotos] = React.useState<PictureInfo[]>([]);
+
   const checkPermissions = async () => {
     try {
       const result =
@@ -30,7 +42,7 @@ const Tab1: React.FC = () => {
     } catch (error) {
       console.error;
     }
-  }
+  };
 
   const showGallery = async () => {
     try {
@@ -39,9 +51,32 @@ const Tab1: React.FC = () => {
     } catch (error) {
       console.error;
     }
-  }
+  };
 
+  const getRecentPhotos = async () => {
+    try {
+      const result = await CapacitorNativePhotoGallery.getRecentPhotos();
+      console.log(result);
+    } catch (error) {
+      console.error;
+    }
+  };
 
+  const getRecentsPictures = async () => {
+    try {
+      const result = await CapacitorNativePhotoGallery.getRecentsPictures({
+        imageSize: 200,
+        fetchOrder: 'desc',
+        fetchLimit: 12,
+        deliveryMode: 'highQuality',
+        resizeMode: 'none',
+      });
+      console.log(result);
+      setPhotos(result.pictures);
+    } catch (error) {
+      console.error;
+    }
+  };
 
   return (
     <IonPage>
@@ -65,7 +100,26 @@ const Tab1: React.FC = () => {
         <IonButton onClick={requestPermissions}>Request Permissions</IonButton>
         <IonButton onClick={showGallery}>Show Gallery</IonButton>
 
+        <IonButton onClick={getRecentPhotos}>getRecentPhotos</IonButton>
+        <IonButton onClick={getRecentsPictures}>
+        getRecentsPictures
+        </IonButton>
 
+        <div className="px-4">
+          <h1>Photos</h1>
+          <div className="grid grid-cols-3 gap-2">
+            {photos.map((photo, index) => (
+              <>
+              <img
+                key={index}
+                className="w-full rounded-lg object-cover"
+                src={`data:image/jpeg;base64,${photo.base64}`}
+                alt={`Photo ${index}`}
+              />
+             </>
+            ))}
+          </div>
+        </div>
       </IonContent>
     </IonPage>
   );

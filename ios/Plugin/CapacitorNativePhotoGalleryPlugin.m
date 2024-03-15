@@ -14,4 +14,14 @@ CAP_PLUGIN(CapacitorNativePhotoGalleryPlugin, "CapacitorNativePhotoGallery",
            
            // Register the requestPhotoLibraryPermission method
            CAP_PLUGIN_METHOD(requestPhotoLibraryPermission, CAPPluginReturnPromise);
+
+           //get recently added photos
+           CAP_PLUGIN_METHOD(getRecentsPictures, CAPPluginReturnPromise);
+
+           CAP_PLUGIN_METHOD(getRecentPhotos, CAPPluginReturnPromise);
+
+           CAP_PLUGIN_METHOD(getAllAlbumsWithLastPicture, CAPPluginReturnPromise);
+
+           CAP_PLUGIN_METHOD(getPhotosFromAlbum, CAPPluginReturnPromise);
+           
 )

@@ -1,24 +1,7 @@
-
-/*
-import { WebPlugin } from '@capacitor/core';
-
-import type { CapacitorNativePhotoGalleryPlugin } from './definitions';
-
-export class CapacitorNativePhotoGalleryWeb
-  extends WebPlugin
-  implements CapacitorNativePhotoGalleryPlugin
-{
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
-  }
-}
-
-*/
-
 // src/web.ts
 import { WebPlugin } from '@capacitor/core';
 import type { CapacitorNativePhotoGalleryPlugin, GalleryResult } from './definitions';
+import { PictureInfo, AlbumInfo } from './definitions';
 
 export class CapacitorNativePhotoGalleryWeb extends WebPlugin implements CapacitorNativePhotoGalleryPlugin {
   
@@ -44,6 +27,27 @@ export class CapacitorNativePhotoGalleryWeb extends WebPlugin implements Capacit
     // Not applicable for web, so you can resolve immediately
     console.warn('Web platform cannot request photo library permissions.');
     return { status: 'granted' }; // or 'notRequested' maybe more suitable
+  }
+
+  //getRecentPhotos
+  async getRecentPhotos(): Promise<{ pictures: string[] }> {
+    // A web implementation could raise an unimplemented error or open a file picker
+    throw this.unimplemented('This method is not available on the web. Consider implementing a file picker as an alternative.');
+  }
+
+  async getRecentsPictures(): Promise<{ pictures: PictureInfo[] }> {
+    // A web implementation could raise an unimplemented error or open a file picker
+    throw this.unimplemented('This method is not available on the web. Consider implementing a file picker as an alternative.');
+  }
+
+  async getAllAlbumsWithLastPicture(): Promise<{ albums: AlbumInfo[] }> {
+    // A web implementation could raise an unimplemented error or open a file picker
+    throw this.unimplemented('This method is not available on the web. Consider implementing a file picker as an alternative.');
+  }
+
+  async getPhotosFromAlbum(): Promise<{ pictures: PictureInfo[] }> {
+    // A web implementation could raise an unimplemented error or open a file picker
+    throw this.unimplemented('This method is not available on the web. Consider implementing a file picker as an alternative.');
   }
 
   // Any additional method stubs go here...

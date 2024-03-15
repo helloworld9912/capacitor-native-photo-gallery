@@ -26,6 +26,29 @@ export interface Photo {
   // ... and so on
 }
 
+export type fetchOrder = 'asc' | 'desc';
+
+export type deliveryMode = 'fast' | 'optimized' | 'highQuality';
+
+export type resizeMode = 'none' | 'exact' | 'fast'
+
+export interface PictureInfo {
+  localIdentifier: string;
+  base64: string;
+  creationDate: string;
+  modificationDate: string;
+  width: number;
+  height: number;
+  location: { latitude: number; longitude: number };
+}
+
+export interface AlbumInfo {
+  localIdentifier: string;
+  title: string;
+  count: number;
+  lastPicture: string | null;
+}
+
 export interface CapacitorNativePhotoGalleryPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
 
@@ -34,5 +57,22 @@ export interface CapacitorNativePhotoGalleryPlugin {
   checkPhotoLibraryPermission(): Promise<{ status: string }>;
 
   requestPhotoLibraryPermission(): Promise<{ status: string }>;
+
+  //getRecentPhotos
+  getRecentPhotos(): Promise<{ pictures: string[] }>; // Add this line
+
+  getRecentsPictures(options: {
+    quality?: number;
+    imageSize?: number;
+    fetchOrder?: fetchOrder;
+    fetchLimit?: number;
+    deliveryMode?: deliveryMode;
+    resizeMode?: resizeMode;
+  }): Promise<{ pictures: PictureInfo[] }>;
+
+  getAllAlbumsWithLastPicture: () => Promise<{ albums: AlbumInfo[] }>;
+
+  getPhotosFromAlbum(options: { albumIdentifier: string }): Promise<{ pictures: PictureInfo[] }>;
+
 
 }

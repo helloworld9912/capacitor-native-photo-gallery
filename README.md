@@ -55,7 +55,11 @@ npm run build
 * [`showGallery(...)`](#showgallery)
 * [`checkPhotoLibraryPermission()`](#checkphotolibrarypermission)
 * [`requestPhotoLibraryPermission()`](#requestphotolibrarypermission)
+* [`getRecentPhotos()`](#getrecentphotos)
+* [`getRecentsPictures(...)`](#getrecentspictures)
+* [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
 * [Interfaces](#interfaces)
+* [Type Aliases](#type-aliases)
 
 </docgen-index>
 
@@ -114,6 +118,47 @@ requestPhotoLibraryPermission() => Promise<{ status: string; }>
 --------------------
 
 
+### getRecentPhotos()
+
+```typescript
+getRecentPhotos() => Promise<{ pictures: string[]; }>
+```
+
+**Returns:** <code>Promise&lt;{ pictures: string[]; }&gt;</code>
+
+--------------------
+
+
+### getRecentsPictures(...)
+
+```typescript
+getRecentsPictures(options: { quality?: number; imageSize?: number; fetchOrder?: fetchOrder; fetchLimit?: number; deliveryMode?: deliveryMode; resizeMode?: resizeMode; }) => Promise<{ pictures: PictureInfo[]; }>
+```
+
+| Param         | Type                                                                                                                                                                                                                                                                                                                       |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ quality?: number; imageSize?: number; <a href="#fetchorder">fetchOrder</a>?: <a href="#fetchorder">fetchOrder</a>; fetchLimit?: number; <a href="#deliverymode">deliveryMode</a>?: <a href="#deliverymode">deliveryMode</a>; <a href="#resizemode">resizeMode</a>?: <a href="#resizemode">resizeMode</a>; }</code> |
+
+**Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
+
+--------------------
+
+
+### getPhotosFromAlbum(...)
+
+```typescript
+getPhotosFromAlbum(options: { albumIdentifier: string; }) => Promise<{ pictures: PictureInfo[]; }>
+```
+
+| Param         | Type                                      |
+| ------------- | ----------------------------------------- |
+| **`options`** | <code>{ albumIdentifier: string; }</code> |
+
+**Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
+
+--------------------
+
+
 ### Interfaces
 
 
@@ -137,5 +182,46 @@ requestPhotoLibraryPermission() => Promise<{ status: string; }>
 | Prop        | Type                |
 | ----------- | ------------------- |
 | **`limit`** | <code>number</code> |
+
+
+#### PictureInfo
+
+| Prop                   | Type                                                  |
+| ---------------------- | ----------------------------------------------------- |
+| **`localIdentifier`**  | <code>string</code>                                   |
+| **`base64`**           | <code>string</code>                                   |
+| **`creationDate`**     | <code>string</code>                                   |
+| **`modificationDate`** | <code>string</code>                                   |
+| **`width`**            | <code>number</code>                                   |
+| **`height`**           | <code>number</code>                                   |
+| **`location`**         | <code>{ latitude: number; longitude: number; }</code> |
+
+
+#### AlbumInfo
+
+| Prop                  | Type                        |
+| --------------------- | --------------------------- |
+| **`localIdentifier`** | <code>string</code>         |
+| **`title`**           | <code>string</code>         |
+| **`count`**           | <code>number</code>         |
+| **`lastPicture`**     | <code>string \| null</code> |
+
+
+### Type Aliases
+
+
+#### fetchOrder
+
+<code>'asc' | 'desc'</code>
+
+
+#### deliveryMode
+
+<code>'fast' | 'optimized' | 'highQuality'</code>
+
+
+#### resizeMode
+
+<code>'none' | 'exact' | 'fast'</code>
 
 </docgen-api>

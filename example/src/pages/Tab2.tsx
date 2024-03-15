@@ -1,23 +1,79 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { CapacitorNativePhotoGallery } from 'capacitor-native-photo-gallery';
+import { useEffect, useState } from 'react';
+import { useHistory } from "react-router-dom";
 
-const Tab3: React.FC = () => {
+export interface AlbumInfo {
+  localIdentifier: string;
+  title: string;
+  count: number;
+  lastPicture: string | null;
+}
+
+const Tab2: React.FC = () => {
+
+  const history = useHistory();
+
+  const [albums, setAlbums] = useState<AlbumInfo[]>([]);
+
+  const fetchAlbums = async () => {
+    try {
+
+      const result = await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture();
+      console.log(result);
+      setAlbums(result.albums);
+
+    } catch (error) {
+      console.error('Error fetching albums', error);
+    }
+  };
+
+  const handleGoToAlbumPage = (id: string, title:string) => {
+    const encodedId = encodeURIComponent(id);
+    const encodedTitle = encodeURIComponent(title);
+    console.log('Go to album page:', title);
+    console.log('Navigate to:', `/album/${id}/${title}`)
+    history.push(`/album/${encodedId}/${encodedTitle}`);
+  }
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Tab 2</IonTitle>
+          <IonTitle>Albums</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Tab 2</IonTitle>
+            <IonTitle size="large">Albums</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <div>Hello Tab 2</div>
+        <div className="px-4">
+          <IonButton onClick={fetchAlbums}>Get Albums</IonButton>
+          <h1>My Albums</h1>
+          <div className="grid grid-cols-1 mb-[100px]">
+            {albums.map((album, index) => (
+              <div 
+              onClick={()=> handleGoToAlbumPage(album?.localIdentifier, album?.title)}
+              className='flex space-x-3 mb-4'>
+              <img
+                key={index}
+                className="w-[6rem] h-[6rem] rounded-xl object-cover"
+                src={`data:image/jpeg;base64,${album?.lastPicture}`}
+                alt={`Photo ${index}`}
+              />
+              <div className='pt-0'>
+              <h2 className='text-white text-xl font-semibold p-0 -pt-2'>{album?.title}</h2>
+              <p className='text-slate-300'>{album?.count} photos</p>
+              </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Tab3;
+export default Tab2;
