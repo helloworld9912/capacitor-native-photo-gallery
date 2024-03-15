@@ -1,0 +1,8 @@
+{
+  "name": "photo-gallery-plugin-testing",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite",
+  "id": "84e47971"
+}

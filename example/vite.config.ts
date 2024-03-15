@@ -1,10 +1,20 @@
-import { defineConfig } from 'vite';
+import legacy from '@vitejs/plugin-legacy'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  root: './src',
+  plugins: [
+    react(),
+    legacy()
+  ],
   build: {
-    outDir: '../dist',
-    minify: false,
-    emptyOutDir: true,
-  },
-});
+    }
+  /* test is not for chads
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+  }
+  */
+})
