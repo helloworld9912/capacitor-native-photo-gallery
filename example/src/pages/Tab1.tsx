@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   IonContent,
   IonHeader,
@@ -9,26 +9,21 @@ import {
 } from '@ionic/react';
 import { BRAND_NAME } from '../const/global';
 
-import { CapacitorNativePhotoGallery } from 'capacitor-native-photo-gallery';
-
-export interface PictureInfo {
-  localIdentifier: string;
-  base64: string;
-  creationDate: string;
-  modificationDate: string;
-  width: number;
-  height: number;
-  location: { latitude: number; longitude: number };
-}
+import {
+  CapacitorNativePhotoGallery,
+  PictureInfo,
+} from 'capacitor-native-photo-gallery';
 
 const Tab1: React.FC = () => {
-  const [photos, setPhotos] = React.useState<PictureInfo[]>([]);
+  const [photos, setPhotos] = useState<PictureInfo[]>([]);
+  const [permissionStatus, setPermissionStatus] = useState<string>('');
 
   const checkPermissions = async () => {
     try {
       const result =
         await CapacitorNativePhotoGallery.checkPhotoLibraryPermission();
       console.log(`Photo library permission status: ${result.status}`);
+      setPermissionStatus(result.status);
     } catch (error) {
       console.error;
     }
@@ -66,8 +61,8 @@ const Tab1: React.FC = () => {
     try {
       const result = await CapacitorNativePhotoGallery.getRecentsPictures({
         imageSize: 200,
-        fetchOrder: 'desc',
         fetchLimit: 12,
+        sortOrder: 'descending', //to get oldest pictures first, use 'ascending'
         deliveryMode: 'highQuality',
         resizeMode: 'none',
       });
@@ -77,6 +72,22 @@ const Tab1: React.FC = () => {
       console.error;
     }
   };
+
+  const getLeastRecentPictures = async () => {
+      try {
+        const result = await CapacitorNativePhotoGallery.getRecentsPictures({
+          imageSize: 200,
+          fetchLimit: 12,
+          sortOrder: 'ascending', //to get oldest pictures first, use 'ascending'
+          deliveryMode: 'highQuality',
+          resizeMode: 'none',
+        });
+        console.log(result);
+        setPhotos(result.pictures);
+      } catch (error) {
+        console.error;
+      }
+    };
 
   return (
     <IonPage>
@@ -98,15 +109,16 @@ const Tab1: React.FC = () => {
 
         <IonButton onClick={checkPermissions}>Check Permissions</IonButton>
         <IonButton onClick={requestPermissions}>Request Permissions</IonButton>
-        <IonButton onClick={showGallery}>Show Gallery</IonButton>
+   
+        <IonButton onClick={getRecentsPictures}>get Most Recents Pictures</IonButton>
+        <IonButton onClick={getLeastRecentPictures}>get Least Recents Pictures</IonButton>
 
-        <IonButton onClick={getRecentPhotos}>getRecentPhotos</IonButton>
-        <IonButton onClick={getRecentsPictures}>
-        getRecentsPictures
-        </IonButton>
-
-        <div className="px-4">
-          <h1>Photos</h1>
+        {permissionStatus && (
+          <p className="text-center">Permission Status: {permissionStatus}</p>
+        )}
+        <div className="">
+          <h1 className=''>Recents</h1>
+          {/*
           <div className="grid grid-cols-3 gap-2">
             {photos.map((photo, index) => (
               <>
@@ -117,6 +129,18 @@ const Tab1: React.FC = () => {
                 alt={`Photo ${index}`}
               />
              </>
+            ))}
+          </div>
+            */}
+
+          <div className="grid grid-cols-3 gap-[2px] mb-[200px]">
+            {photos?.map((photo, index) => (
+              <img
+                key={index}
+                className="w-full h-[7rem] object-cover"
+                src={`data:image/jpeg;base64,${photo?.base64}`}
+                alt={`Photo ${index}`}
+              />
             ))}
           </div>
         </div>

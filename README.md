@@ -12,15 +12,7 @@ npx cap sync
 ## Usage (iOS)
 
 ```javascript
-import { Plugins } from '@capacitor/core'
-
-const { SignInWithApple } = Plugins
-
-SignInWithApple.Authorize().then(response => {
-  console.log(response)
-}).catch(response => {
-  console.error(response)
-})
+console.log('Hello World')
 ```
 
 ## Instructions (Android/Web)
@@ -41,10 +33,23 @@ Read about Configuring Info.plist in the iOS Guide for more information on setti
 
 if you want to develop the plugin, you can use the following commands to build the plugin and test it in the example app.
 
-once you done your modification, increment the version in the package.json file and then run:
+
+If you modify only the .swift code, you dont need to increment the version of the plugin package (root package.json), and then you only need to run the following command inside the ./example folder:
+
+```bash
+yarn && yarn build && npx cap sync
+```
+
+If you made changes to definitions, or other files, you need to increment the version of the plugin package (root package.json), and then you only need to run the following command inside the root folder:
 
 ```bash
 npm run build
+```
+
+and then run the following command inside the ./example folder:
+
+```bash
+yarn && yarn build && npx cap sync
 ```
 
 ## API
@@ -132,12 +137,12 @@ getRecentPhotos() => Promise<{ pictures: string[]; }>
 ### getRecentsPictures(...)
 
 ```typescript
-getRecentsPictures(options: { quality?: number; imageSize?: number; fetchOrder?: fetchOrder; fetchLimit?: number; deliveryMode?: deliveryMode; resizeMode?: resizeMode; }) => Promise<{ pictures: PictureInfo[]; }>
+getRecentsPictures(options: { quality?: number; imageSize?: number; sortOrder?: sortOrder; fetchLimit?: number; deliveryMode?: deliveryMode; resizeMode?: resizeMode; }) => Promise<{ pictures: PictureInfo[]; }>
 ```
 
-| Param         | Type                                                                                                                                                                                                                                                                                                                       |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`options`** | <code>{ quality?: number; imageSize?: number; <a href="#fetchorder">fetchOrder</a>?: <a href="#fetchorder">fetchOrder</a>; fetchLimit?: number; <a href="#deliverymode">deliveryMode</a>?: <a href="#deliverymode">deliveryMode</a>; <a href="#resizemode">resizeMode</a>?: <a href="#resizemode">resizeMode</a>; }</code> |
+| Param         | Type                                                                                                                                                                                                                                                                                                                   |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ quality?: number; imageSize?: number; <a href="#sortorder">sortOrder</a>?: <a href="#sortorder">sortOrder</a>; fetchLimit?: number; <a href="#deliverymode">deliveryMode</a>?: <a href="#deliverymode">deliveryMode</a>; <a href="#resizemode">resizeMode</a>?: <a href="#resizemode">resizeMode</a>; }</code> |
 
 **Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
 
@@ -210,9 +215,9 @@ getPhotosFromAlbum(options: { albumIdentifier: string; }) => Promise<{ pictures:
 ### Type Aliases
 
 
-#### fetchOrder
+#### sortOrder
 
-<code>'asc' | 'desc'</code>
+<code>'ascending' | 'descending'</code>
 
 
 #### deliveryMode

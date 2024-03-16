@@ -292,7 +292,7 @@ func getPhotosFromAlbum(_ call: CAPPluginCall) {
     
     // Once all asynchronous image fetch operations are completed resolve the Capacitor call
     dispatchGroup.notify(queue: .main) {
-        call.resolve(["photos": images])
+        call.resolve(["pictures": images])
     }
 }
 
@@ -367,17 +367,17 @@ func getAllAlbumsWithLastPicture(_ call: CAPPluginCall) {
     let dateFormatter = ISO8601DateFormatter()
     dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-    
     let quality = call.getDouble("quality") ?? 0.7 // Fallback to 70% quality if not provided
     let imageSize = call.getInt("imageSize") ?? 150 // Fallback to 150px if not provided
-    let fetchOrder = call.getString("fetchOrder") ?? "desc" // Fallback to descending order if not provided
-    let isAscending = fetchOrder == "asc" ? true : false
+    let rawFetchOrder = call.getString("sortOrder")
+    let fetchOrder = call.getString("sortOrder") ?? "false" // Fallback to "false" if not provided
+    let fetchOrderFormatted = fetchOrder.lowercased() == "ascending" // This will be true if fetchOrder is "true", otherwise false
     let fetchLimit = call.getInt("fetchLimit") ?? 6 // Fallback to 6 images if not provided
     let deliveryModeString = call.getString("deliveryMode") ?? "highQualityFormat" // Default delivery mode
     let resizeModeString = call.getString("resizeMode") ?? "fast" // Default resize mode
 
     let fetchOptions = PHFetchOptions()
-    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: isAscending)]
+    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: fetchOrderFormatted)]
     fetchOptions.fetchLimit = fetchLimit
     
     let result = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: fetchOptions)

@@ -22,7 +22,7 @@
 }
 
 
-/* Hide the scrollbar */  /* use on prod
+/* Hide the scrollbar */
 ion-content {
   --offset-bottom: auto!important;
   --overflow: hidden;
@@ -31,7 +31,6 @@ ion-content {
     display: none;
   }
 }
-*/
 
 /* Translusent tab Bar Positioning */
 ion-tab-bar {

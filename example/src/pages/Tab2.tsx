@@ -1,14 +1,8 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { CapacitorNativePhotoGallery } from 'capacitor-native-photo-gallery';
+import { CapacitorNativePhotoGallery, AlbumInfo } from 'capacitor-native-photo-gallery';
 import { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
 
-export interface AlbumInfo {
-  localIdentifier: string;
-  title: string;
-  count: number;
-  lastPicture: string | null;
-}
 
 const Tab2: React.FC = () => {
 
@@ -36,8 +30,13 @@ const Tab2: React.FC = () => {
     history.push(`/album/${encodedId}/${encodedTitle}`);
   }
 
+  useEffect(() => {
+    //fetch albums on page load
+    fetchAlbums();
+  }, []);
+
   return (
-    <IonPage>
+    <IonPage className=''>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Albums</IonTitle>
@@ -50,7 +49,7 @@ const Tab2: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <div className="px-4">
-          <IonButton onClick={fetchAlbums}>Get Albums</IonButton>
+          <IonButton className="hidden" onClick={fetchAlbums}>Get Albums</IonButton>
           <h1>My Albums</h1>
           <div className="grid grid-cols-1 mb-[100px]">
             {albums.map((album, index) => (

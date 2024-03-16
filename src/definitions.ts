@@ -26,11 +26,11 @@ export interface Photo {
   // ... and so on
 }
 
-export type fetchOrder = 'asc' | 'desc';
-
 export type deliveryMode = 'fast' | 'optimized' | 'highQuality';
 
 export type resizeMode = 'none' | 'exact' | 'fast'
+
+export type sortOrder = 'ascending' | 'descending';
 
 export interface PictureInfo {
   localIdentifier: string;
@@ -64,7 +64,7 @@ export interface CapacitorNativePhotoGalleryPlugin {
   getRecentsPictures(options: {
     quality?: number;
     imageSize?: number;
-    fetchOrder?: fetchOrder;
+    sortOrder?: sortOrder;
     fetchLimit?: number;
     deliveryMode?: deliveryMode;
     resizeMode?: resizeMode;
