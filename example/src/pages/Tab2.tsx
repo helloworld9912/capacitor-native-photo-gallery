@@ -30,22 +30,34 @@ const Tab2: React.FC = () => {
     history.push(`/album/${encodedId}/${encodedTitle}`);
   }
 
+  const showTabs = () => {
+    const tabs = document.querySelectorAll('ion-tab-bar');
+    tabs.forEach(tab => {
+      tab.style.display = 'flex';
+    });
+  }
+
   useEffect(() => {
+    //showTabs();
     //fetch albums on page load
     fetchAlbums();
   }, []);
 
+  
+
   return (
-    <IonPage className=''>
+    <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Albums</IonTitle>
+          <IonTitle className='text-start p-0 pl-4'>Albums</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
+      <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Albums</IonTitle>
+            <IonTitle size="large" className="-mt-3 mb-0.5">
+            Albums
+            </IonTitle>
           </IonToolbar>
         </IonHeader>
         <div className="px-4">
@@ -55,7 +67,7 @@ const Tab2: React.FC = () => {
             {albums.map((album, index) => (
               <div 
               onClick={()=> handleGoToAlbumPage(album?.localIdentifier, album?.title)}
-              className='flex space-x-3 mb-4'>
+              className='flex space-x-2 mb-4'>
               <img
                 key={index}
                 className="w-[6rem] h-[6rem] rounded-xl object-cover"

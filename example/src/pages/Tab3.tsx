@@ -22,15 +22,16 @@ const backdrop = {
 };
 
 const modal = {
-  hidden: { y: "-100vh", opacity: 0 },
-  visible: { 
-    y: "0",
+  hidden: { scale: 0.95, opacity: 0 },
+  visible: {
+    scale: 1,
     opacity: 1,
-    transition: { delay: 0.5 }
+    transition: { delay: 0.2, duration: 0.5 }
   },
 };
 
 
+//trying to mimic the ios photo gallery - WIP
 const Tab3: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
@@ -116,21 +117,26 @@ const Tab3: React.FC = () => {
         <motion.div className="grid grid-cols-3 gap-[2px]" layout>
           {photos.map((photo) => {
             return (
-              <motion.div className="w-full h-[7rem] object-cover" key={photo.id}>
+              <motion.div className="h-[7rem] object-cover" key={photo.id}>
+              <div
+                style={{ paddingTop: '100%' }} // Créer un div carrée
+                onClick={() => openImage(parseInt(photo.id))}
+              >
                 <motion.img
                   layoutId={`img-${photo.id}`}
+                  className="object-cover"
                   src={photo.src}
                   alt={`Photo ${photo.id}`}
-                  onClick={() => openImage(parseInt(photo.id))}
                 />
-              </motion.div>
+              </div>
+            </motion.div>
             );
           })}
         </motion.div>
 
 
         <AnimatePresence>
-          {selectedImage !== null && (
+          {selectedImage && (
             <motion.div
               className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50"
               variants={backdrop}

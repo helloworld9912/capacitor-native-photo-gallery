@@ -72,7 +72,15 @@ export interface CapacitorNativePhotoGalleryPlugin {
 
   getAllAlbumsWithLastPicture: () => Promise<{ albums: AlbumInfo[] }>;
 
-  getPhotosFromAlbum(options: { albumIdentifier: string }): Promise<{ pictures: PictureInfo[] }>;
+  getPhotosFromAlbum(options: {
+    albumIdentifier: string,
+    limit?: number, 
+  }): Promise<{ pictures: PictureInfo[] }>;
 
+  getImageByIdentifier(options: { 
+    localIdentifier: string,
+    deliveryMode?: deliveryMode,
+    resizeMode?: resizeMode 
+  }): Promise<{ picture: PictureInfo }>;
 
 }

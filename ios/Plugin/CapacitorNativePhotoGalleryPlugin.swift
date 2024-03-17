@@ -201,44 +201,157 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     } 
 
 
-/*
-//pagination Function to Load Images in Batches
-@objc func loadGalleryPage(_ call: CAPPluginCall) {
-    let offset = call.getInt("offset") ?? 0
-    let limit = call.getInt("limit") ?? 20 // Default batch size
+@objc(getImageByIdentifier:)
+func getImageByIdentifier(_ call: CAPPluginCall) {
+    guard let assetIdentifier = call.getString("localIdentifier") else {
+        call.reject("You must provide an asset identifier")
+        return
+    }
 
-    let fetchOptions = PHFetchOptions()
-    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-    fetchOptions.fetchLimit = limit
-    fetchOptions.fetchOffset = offset // iOS 13 and later
+    let assetsFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [assetIdentifier], options: nil)
+    guard let asset = assetsFetchResult.firstObject else {
+        call.reject("Asset not found")
+        return
+    }
 
-    let result = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: fetchOptions)
-    // Continue to fetch and prepare the image data for return...
-}
+    let deliveryModeString = call.getString("deliveryMode") ?? "highQualityFormat" // Default delivery mode
+    print("deliveryModeString: \(deliveryModeString)")
+    let resizeModeString = call.getString("resizeMode") ?? "fast" // Default resize mode
+    print("resizeModeString: \(resizeModeString)")
 
-@objc func getFullQualityImage(_ call: CAPPluginCall) {
-    let assetId = call.getString("assetId") ?? ""
+    let requestOptions = PHImageRequestOptions()
+    requestOptions.isNetworkAccessAllowed = true // Allows fetching from iCloud if necessary
 
-    if let asset = PHAsset.fetchAssets(withLocalIdentifiers: [assetId], options: nil).firstObject {
-        let options = PHImageRequestOptions()
-        options.isNetworkAccessAllowed = true // Allows fetching from iCloud
-        options.deliveryMode = .highQualityFormat // Request full quality
-        options.isSynchronous = true
+    let deliveryMode: PHImageRequestOptionsDeliveryMode
+    switch deliveryModeString.lowercased() {
+    case "optimized":
+        deliveryMode = .opportunistic
+    case "fast":
+        deliveryMode = .fastFormat
+    default:
+        deliveryMode = .highQualityFormat
+    }
 
-        PHImageManager.default().requestImageData(for: asset, options: options) { imageData, dataUTI, orientation, info in
-            if let data = imageData {
-                let base64String = data.base64EncodedString()
-                call.resolve(["picture": base64String])
-            } else {
-                call.reject("Unable to fetch full quality image")
+    let resizeMode: PHImageRequestOptionsResizeMode
+    switch resizeModeString.lowercased() {
+    case "exact":
+        resizeMode = .exact
+    case "none":
+        resizeMode = .none
+    case "fast":
+        resizeMode = .fast
+    default:
+        resizeMode = .fast
+    }
+
+    requestOptions.deliveryMode = deliveryMode
+    print("deliveryMode: \(deliveryMode)")
+    requestOptions.resizeMode = resizeMode
+    print("resizeMode: \(resizeMode)")
+
+    //requestOptions.deliveryMode = .highQualityFormat // Request full-quality image
+    //requestOptions.resizeMode = .exact // Do not resize
+
+    PHImageManager.default().requestImageDataAndOrientation(for: asset, options: requestOptions) { imageData, dataUTI, _, info in
+        if let imageData = imageData {
+            let base64String = imageData.base64EncodedString() // Convert image data to base64
+
+            let dateFormatter = ISO8601DateFormatter()
+            
+            var pictureInfo: [String: Any] = [
+                "localIdentifier": asset.localIdentifier,
+                "base64": base64String,
+                "creationDate": dateFormatter.string(from: asset.creationDate ?? Date()),
+                "modificationDate": dateFormatter.string(from: asset.modificationDate ?? Date()),
+                "width": asset.pixelWidth,
+                "height": asset.pixelHeight
+            ]
+            
+            if let location = asset.location {
+                pictureInfo["location"] = [
+                    "latitude": location.coordinate.latitude,
+                    "longitude": location.coordinate.longitude
+                ]
             }
+            
+            call.resolve(["picture": pictureInfo])
+        } else {
+            call.reject("Could not retrieve image data")
         }
-    } else {
-        call.reject("Invalid asset identifier")
     }
 }
-*/
 
+
+
+@objc(getPhotosFromAlbum:)
+func getPhotosFromAlbum(_ call: CAPPluginCall) {
+    guard let albumIdentifier = call.getString("albumIdentifier") else {
+        call.reject("You must provide an album identifier")
+        return
+    }
+
+    // Fetch the album with the given identifier
+    guard let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumIdentifier], options: nil).firstObject else {
+        call.reject("Album not found")
+        return
+    }
+    
+    // Use PHFetchOptions if you want to apply filters or sorting to the photos
+    let fetchOptions = PHFetchOptions()
+    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+    
+    // Add limit for the number of photos to fetch
+    let limit = call.getInt("limit") ?? 0 
+    print("limit: \(limit)")
+    if limit > 0 {
+        fetchOptions.fetchLimit = limit
+    }
+    
+    let assetsFetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
+    
+    //var images = [[String: Any]]() // To hold the image info dictionaries
+    var images = Array(repeating: [String: Any](), count: assetsFetchResult.count)
+    let dispatchGroup = DispatchGroup()
+    let imageManager = PHCachingImageManager.default()
+    
+    // Use requestOptions for requesting image data
+    let requestOptions = PHImageRequestOptions()
+    requestOptions.isNetworkAccessAllowed = true // Allows photos to be fetched from iCloud if necessary
+    requestOptions.deliveryMode = .highQualityFormat // Request high-quality images
+    requestOptions.resizeMode = .exact // Resize images to the specified targetSize
+
+    let maxLength: CGFloat = 150
+    var targetSize = CGSize(width: maxLength, height: maxLength)
+
+    // Enumerate (limited or all) photos in the selected album
+      assetsFetchResult.enumerateObjects { (asset, index, stop) in
+        dispatchGroup.enter()
+        imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: requestOptions) { image, _ in
+            if let image = image, let data = image.jpegData(compressionQuality: 1) {
+                let base64String = data.base64EncodedString() // Convert image to base64
+                // Add image data dictionary at the correct index to maintain order
+                images[index] = [
+                    "localIdentifier": asset.localIdentifier,
+                    "base64": base64String
+                ]
+            } else {
+                // If the image is not available, maintain placeholder to keep correct order
+                images[index] = [:]
+            }
+            dispatchGroup.leave()
+        }
+    }
+    
+    // Once all asynchronous image fetch operations are completed, resolve the Capacitor call
+    dispatchGroup.notify(queue: .main) {
+         // Filter out any empty dictionaries that may exist if an image was not available
+        let nonEmptyImages = images.filter { !$0.isEmpty }
+        call.resolve(["pictures": images])
+    }
+}
+
+
+/*
 @objc(getPhotosFromAlbum:)
 func getPhotosFromAlbum(_ call: CAPPluginCall) {
     guard let albumIdentifier = call.getString("albumIdentifier") else {
@@ -267,27 +380,29 @@ func getPhotosFromAlbum(_ call: CAPPluginCall) {
     requestOptions.deliveryMode = .highQualityFormat // Request high-quality images
     requestOptions.resizeMode = .exact // Resize images to the specified targetSize
 
-    let targetSize = CGSize(width: 150, height: 150) // Desired image size (width x height)
+    //let targetSize = CGSize(width: 150, height: 150) // Desired image size (width x height)
+    let maxLength: CGFloat = 150
+    var targetSize = CGSize(width: maxLength, height: maxLength)
 
     // Enumerate all photos in the selected album
     assetsFetchResult.enumerateObjects { (asset, _, _) in
         dispatchGroup.enter() // Start of asynchronous operation
         
         // Request image for the asset
-        imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: requestOptions) { image, _ in
-            
-            if let image = image, let data = image.jpegData(compressionQuality: 0.8) {
-                let base64String = data.base64EncodedString() // Convert image to base64
-                
-                // Add image data dictionary to the array
-                images.append([
-                    "localIdentifier": asset.localIdentifier,
-                    "base64": base64String
-                ])
-            }
-            
-            dispatchGroup.leave() // End of asynchronous operation
-        }
+        //imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: requestOptions) { image, _ in
+      // Request image for the asset
+// Remove UIGraphics and resizing code, let PHImageManager handle the resizing
+imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: requestOptions) { image, _ in
+    if let image = image, let data = image.jpegData(compressionQuality: 1) {
+        let base64String = data.base64EncodedString() // Convert image to base64
+        // Add image data dictionary to the array
+        images.append([
+            "localIdentifier": asset.localIdentifier,
+            "base64": base64String
+        ])
+    }
+    dispatchGroup.leave() // End of asynchronous operation
+}
     }
     
     // Once all asynchronous image fetch operations are completed resolve the Capacitor call
@@ -296,7 +411,7 @@ func getPhotosFromAlbum(_ call: CAPPluginCall) {
     }
 }
 
-
+*/
 
 @objc(getAllAlbumsWithLastPicture:)
 func getAllAlbumsWithLastPicture(_ call: CAPPluginCall) {

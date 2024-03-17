@@ -63,6 +63,7 @@ yarn && yarn build && npx cap sync
 * [`getRecentPhotos()`](#getrecentphotos)
 * [`getRecentsPictures(...)`](#getrecentspictures)
 * [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
+* [`getImageByIdentifier(...)`](#getimagebyidentifier)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 
@@ -152,14 +153,29 @@ getRecentsPictures(options: { quality?: number; imageSize?: number; sortOrder?: 
 ### getPhotosFromAlbum(...)
 
 ```typescript
-getPhotosFromAlbum(options: { albumIdentifier: string; }) => Promise<{ pictures: PictureInfo[]; }>
+getPhotosFromAlbum(options: { albumIdentifier: string; limit?: number; }) => Promise<{ pictures: PictureInfo[]; }>
 ```
 
-| Param         | Type                                      |
-| ------------- | ----------------------------------------- |
-| **`options`** | <code>{ albumIdentifier: string; }</code> |
+| Param         | Type                                                      |
+| ------------- | --------------------------------------------------------- |
+| **`options`** | <code>{ albumIdentifier: string; limit?: number; }</code> |
 
 **Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
+
+--------------------
+
+
+### getImageByIdentifier(...)
+
+```typescript
+getImageByIdentifier(options: { localIdentifier: string; deliveryMode?: deliveryMode; resizeMode?: resizeMode; }) => Promise<{ picture: PictureInfo; }>
+```
+
+| Param         | Type                                                                                                                                                                                                        |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ localIdentifier: string; <a href="#deliverymode">deliveryMode</a>?: <a href="#deliverymode">deliveryMode</a>; <a href="#resizemode">resizeMode</a>?: <a href="#resizemode">resizeMode</a>; }</code> |
+
+**Returns:** <code>Promise&lt;{ picture: <a href="#pictureinfo">PictureInfo</a>; }&gt;</code>
 
 --------------------
 

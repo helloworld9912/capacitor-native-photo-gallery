@@ -24,6 +24,7 @@ import Tab4 from "./pages/Tab4";
 
 //pages
 import AlbumDetails from "./pages/AlbumDetails";
+import PictureView from "./pages/PictureView";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -77,6 +78,9 @@ const App: React.FC  = () => {
             </Route>
             <Route exact path="/album/:id/:title">
               <AlbumDetails />
+            </Route>
+            <Route exact path="/picture/:id">
+              <PictureView />
             </Route>
 
           </IonRouterOutlet>

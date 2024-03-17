@@ -23,5 +23,6 @@ CAP_PLUGIN(CapacitorNativePhotoGalleryPlugin, "CapacitorNativePhotoGallery",
            CAP_PLUGIN_METHOD(getAllAlbumsWithLastPicture, CAPPluginReturnPromise);
 
            CAP_PLUGIN_METHOD(getPhotosFromAlbum, CAPPluginReturnPromise);
-           
+
+           CAP_PLUGIN_METHOD(getImageByIdentifier, CAPPluginReturnPromise);
 )

@@ -15,6 +15,11 @@ import {
   IonButton,
 } from '@ionic/react';
 
+import { useHistory } from "react-router-dom";
+
+import { useAtom } from 'jotai';
+import { previewPicture } from '../atom/global';
+
 type RouteParams = {
   id: string;
   title: string;
@@ -23,17 +28,31 @@ type RouteParams = {
 const AlbumDetails: React.FC = () => {
   const [photos, setPhotos] = useState<PictureInfo[]>([]);
 
+  const [selectedPreviewPhoto, setSelectedPreviewPhoto] = useAtom(previewPicture);
+
   const { id, title } = useParams<RouteParams>();
   const decodedId = decodeURIComponent(id);
   const decodedTitle = decodeURIComponent(title);
 
+  const history = useHistory();
+
   const fetchPhotos = async () => {
     try {
-      const result = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
+      const first_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
+        albumIdentifier: decodedId,
+        limit: 21
+      });
+      
+      console.log(first_results);
+
+      setPhotos(first_results.pictures);
+
+      const all_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
         albumIdentifier: decodedId,
       });
-      console.log(result);
-      setPhotos(result.pictures);
+
+      setPhotos(all_results.pictures);
+
     } catch (error) {
       console.error('Error fetching photos', error);
     }
@@ -48,6 +67,12 @@ const AlbumDetails: React.FC = () => {
     //fetch photos on page load
     fetchPhotos();
   }, []);
+
+  const handleGoToPicturePage = (id: string, base64:string) => {
+    setSelectedPreviewPhoto(base64);
+    const encodedId = encodeURIComponent(id);
+    history.push(`/picture/${encodedId}`);
+  }
   
   return (
     <IonPage>
@@ -72,6 +97,7 @@ const AlbumDetails: React.FC = () => {
         <div className="grid grid-cols-3 gap-[2px]">
           {photos?.map((photo, index) => (
             <img
+              onClick={()=> handleGoToPicturePage(photo?.localIdentifier, photo?.base64)}
               key={index}
               className="w-full h-[7rem] object-cover"
               src={`data:image/jpeg;base64,${photo?.base64}`}
