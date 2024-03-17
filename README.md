@@ -56,11 +56,8 @@ yarn && yarn build && npx cap sync
 
 <docgen-index>
 
-* [`echo(...)`](#echo)
-* [`showGallery(...)`](#showgallery)
 * [`checkPhotoLibraryPermission()`](#checkphotolibrarypermission)
 * [`requestPhotoLibraryPermission()`](#requestphotolibrarypermission)
-* [`getRecentPhotos()`](#getrecentphotos)
 * [`getRecentsPictures(...)`](#getrecentspictures)
 * [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
 * [`getImageByIdentifier(...)`](#getimagebyidentifier)
@@ -71,36 +68,6 @@ yarn && yarn build && npx cap sync
 
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
-
-### echo(...)
-
-```typescript
-echo(options: { value: string; }) => Promise<{ value: string; }>
-```
-
-| Param         | Type                            |
-| ------------- | ------------------------------- |
-| **`options`** | <code>{ value: string; }</code> |
-
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
-
---------------------
-
-
-### showGallery(...)
-
-```typescript
-showGallery(options?: ShowGalleryOptions | undefined) => Promise<GalleryResult>
-```
-
-| Param         | Type                                                              |
-| ------------- | ----------------------------------------------------------------- |
-| **`options`** | <code><a href="#showgalleryoptions">ShowGalleryOptions</a></code> |
-
-**Returns:** <code>Promise&lt;<a href="#galleryresult">GalleryResult</a>&gt;</code>
-
---------------------
-
 
 ### checkPhotoLibraryPermission()
 
@@ -120,17 +87,6 @@ requestPhotoLibraryPermission() => Promise<{ status: string; }>
 ```
 
 **Returns:** <code>Promise&lt;{ status: string; }&gt;</code>
-
---------------------
-
-
-### getRecentPhotos()
-
-```typescript
-getRecentPhotos() => Promise<{ pictures: string[]; }>
-```
-
-**Returns:** <code>Promise&lt;{ pictures: string[]; }&gt;</code>
 
 --------------------
 
@@ -181,28 +137,6 @@ getImageByIdentifier(options: { localIdentifier: string; deliveryMode?: delivery
 
 
 ### Interfaces
-
-
-#### GalleryResult
-
-| Prop         | Type                 |
-| ------------ | -------------------- |
-| **`photos`** | <code>Photo[]</code> |
-
-
-#### Photo
-
-| Prop             | Type                |
-| ---------------- | ------------------- |
-| **`identifier`** | <code>string</code> |
-| **`webPath`**    | <code>string</code> |
-
-
-#### ShowGalleryOptions
-
-| Prop        | Type                |
-| ----------- | ------------------- |
-| **`limit`** | <code>number</code> |
 
 
 #### PictureInfo

@@ -5,10 +5,6 @@
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
 CAP_PLUGIN(CapacitorNativePhotoGalleryPlugin, "CapacitorNativePhotoGallery",
 
-           CAP_PLUGIN_METHOD(echo, CAPPluginReturnPromise);
-           // Register the showGallery method
-           CAP_PLUGIN_METHOD(showGallery, CAPPluginReturnPromise);
-
            // Register the checkPhotoLibraryPermission method
            CAP_PLUGIN_METHOD(checkPhotoLibraryPermission, CAPPluginReturnPromise);
            
@@ -17,8 +13,6 @@ CAP_PLUGIN(CapacitorNativePhotoGalleryPlugin, "CapacitorNativePhotoGallery",
 
            //get recently added photos
            CAP_PLUGIN_METHOD(getRecentsPictures, CAPPluginReturnPromise);
-
-           CAP_PLUGIN_METHOD(getRecentPhotos, CAPPluginReturnPromise);
 
            CAP_PLUGIN_METHOD(getAllAlbumsWithLastPicture, CAPPluginReturnPromise);
 

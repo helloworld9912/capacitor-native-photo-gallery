@@ -39,24 +39,6 @@ const Tab1: React.FC = () => {
     }
   };
 
-  const showGallery = async () => {
-    try {
-      const result = await CapacitorNativePhotoGallery.showGallery();
-      console.log(result);
-    } catch (error) {
-      console.error;
-    }
-  };
-
-  const getRecentPhotos = async () => {
-    try {
-      const result = await CapacitorNativePhotoGallery.getRecentPhotos();
-      console.log(result);
-    } catch (error) {
-      console.error;
-    }
-  };
-
   const getRecentsPictures = async () => {
     try {
       const result = await CapacitorNativePhotoGallery.getRecentsPictures({

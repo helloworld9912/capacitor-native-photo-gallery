@@ -24,114 +24,6 @@ struct Photo {
 public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     private let implementation = CapacitorNativePhotoGallery()
 
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.resolve([
-            "value": implementation.echo(value)
-        ])
-    }
-
-    // Create a method that can be called from JavaScript to get the photos
-        @objc func showGallery(_ call: CAPPluginCall) {
-        if #available(iOS 14, *) {
-            let status = PHPhotoLibrary.authorizationStatus()
-
-            switch status {
-            case .authorized, .limited:
-                // Fetch photos using Photos framework
-                fetchPhotos { (result) in
-                    switch result {
-                    case .success(let photoArray):
-                        // Convert the photos to a format that can be passed to JavaScript
-                        let photoDataArray = photoArray.map { photo in
-                            // Return relevant photo information, like the file path
-                            return ["filePath": photo.fileURL.absoluteString]
-                        }
-                        call.resolve(["photos": photoDataArray])
-                    case .failure(let error):
-                        call.reject(error.localizedDescription)
-                    }
-                }
-            default:
-                // Request access
-                PHPhotoLibrary.requestAuthorization { newStatus in
-                    if newStatus == .authorized || newStatus == .limited {
-                        self.showGallery(call)
-                    } else {
-                        call.reject("Access to photo library denied")
-                    }
-                }
-            }
-        } else {
-            // Handle iOS 13 or lower - .limited is not available
-            let status = PHPhotoLibrary.authorizationStatus()
-
-            switch status {
-            case .authorized:
-                // Fetch photos using Photos framework
-                fetchPhotos { (result) in
-                    switch result {
-                    case .success(let photoArray):
-                        // Convert the photos to a format that can be passed to JavaScript
-                        let photoDataArray = photoArray.map { photo in
-                            // Return relevant photo information, like the file path
-                            return ["filePath": photo.fileURL.absoluteString]
-                        }
-                        call.resolve(["photos": photoDataArray])
-                    case .failure(let error):
-                        call.reject(error.localizedDescription)
-                    }
-                }
-            default:
-                // Request access
-                PHPhotoLibrary.requestAuthorization { newStatus in
-                    if newStatus == .authorized {
-                        self.showGallery(call)
-                    } else {
-                        call.reject("Access to photo library denied")
-                    }
-                }
-            }
-        }
-    }
-
-
-    private func fetchPhotos(completion: @escaping (Result<[Photo], Error>) -> Void) {
-        var photoAssets = [PHAsset]()
-        let fetchOptions = PHFetchOptions()
-        
-        // Sort by creation date, fetch only images and limit the number
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-        fetchOptions.fetchLimit = 25 // limit to the last 25 images
-        
-        // Perform the fetch
-        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-        fetchResult.enumerateObjects { (asset, _, _) in
-            photoAssets.append(asset)
-        }
-        
-        // Request image data for the fetched assets
-        var photos = [Photo]()
-        let imageManager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = true
-        requestOptions.deliveryMode = .highQualityFormat
-        
-        for asset in photoAssets {
-            imageManager.requestImageData(for: asset, options: requestOptions) { (imageData, dataUTI, orientation, info) in
-                // Check for a URL representing the image file
-                if let fileURL = info?["PHImageFileURLKey"] as? URL {
-                    photos.append(Photo(fileURL: fileURL))
-                }
-            }
-        }
-
-        // Once all images are fetched, call the completion with success
-        completion(.success(photos))
-    }
-
-
     //working !
       @objc func checkPhotoLibraryPermission(_ call: CAPPluginCall) {
         let status = PHPhotoLibrary.authorizationStatus()
@@ -172,34 +64,6 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
             }
         }
     }
-
-    
-    //get 3 most recent photos from the gallery
-    @objc func getRecentPhotos(_ call: CAPPluginCall) {
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        fetchOptions.fetchLimit = 3 // limit to the last 3 images
-        
-        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-        var photoDataArray = [[String: String]]()
-        
-        fetchResult.enumerateObjects { (asset, _, _) in
-            let imageManager = PHImageManager.default()
-            let requestOptions = PHImageRequestOptions()
-            requestOptions.isSynchronous = true
-            requestOptions.deliveryMode = .highQualityFormat
-            
-            imageManager.requestImageData(for: asset, options: requestOptions) { (imageData, dataUTI, orientation, info) in
-                // Check for a URL representing the image file
-                if let fileURL = info?["PHImageFileURLKey"] as? URL {
-                    photoDataArray.append(["filePath": fileURL.absoluteString])
-                }
-            }
-        }
-        
-        call.resolve(["photos": photoDataArray])
-    } 
-
 
 @objc(getImageByIdentifier:)
 func getImageByIdentifier(_ call: CAPPluginCall) {
@@ -351,68 +215,6 @@ func getPhotosFromAlbum(_ call: CAPPluginCall) {
 }
 
 
-/*
-@objc(getPhotosFromAlbum:)
-func getPhotosFromAlbum(_ call: CAPPluginCall) {
-    guard let albumIdentifier = call.getString("albumIdentifier") else {
-        call.reject("You must provide an album identifier")
-        return
-    }
-
-    // Fetch the album with the given identifier
-    guard let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumIdentifier], options: nil).firstObject else {
-        call.reject("Album not found")
-        return
-    }
-    
-    // Use PHFetchOptions if you want to apply filters or sorting to the photos
-    let fetchOptions = PHFetchOptions()
-    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
-    let assetsFetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
-    
-    var images = [[String: Any]]() // To hold the image info dictionaries
-    let dispatchGroup = DispatchGroup()
-    let imageManager = PHCachingImageManager.default()
-    
-    // Use requestOptions for requesting image data
-    let requestOptions = PHImageRequestOptions()
-    requestOptions.isNetworkAccessAllowed = true // Allows photos to be fetched from iCloud if necessary
-    requestOptions.deliveryMode = .highQualityFormat // Request high-quality images
-    requestOptions.resizeMode = .exact // Resize images to the specified targetSize
-
-    //let targetSize = CGSize(width: 150, height: 150) // Desired image size (width x height)
-    let maxLength: CGFloat = 150
-    var targetSize = CGSize(width: maxLength, height: maxLength)
-
-    // Enumerate all photos in the selected album
-    assetsFetchResult.enumerateObjects { (asset, _, _) in
-        dispatchGroup.enter() // Start of asynchronous operation
-        
-        // Request image for the asset
-        //imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: requestOptions) { image, _ in
-      // Request image for the asset
-// Remove UIGraphics and resizing code, let PHImageManager handle the resizing
-imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: requestOptions) { image, _ in
-    if let image = image, let data = image.jpegData(compressionQuality: 1) {
-        let base64String = data.base64EncodedString() // Convert image to base64
-        // Add image data dictionary to the array
-        images.append([
-            "localIdentifier": asset.localIdentifier,
-            "base64": base64String
-        ])
-    }
-    dispatchGroup.leave() // End of asynchronous operation
-}
-    }
-    
-    // Once all asynchronous image fetch operations are completed resolve the Capacitor call
-    dispatchGroup.notify(queue: .main) {
-        call.resolve(["pictures": images])
-    }
-}
-
-*/
-
 @objc(getAllAlbumsWithLastPicture:)
 func getAllAlbumsWithLastPicture(_ call: CAPPluginCall) {
     // Define fetch options to sort by creation date
@@ -473,8 +275,6 @@ func getAllAlbumsWithLastPicture(_ call: CAPPluginCall) {
         call.resolve(["albums": albumInfoList])
     }
 }
-
-
 
 
     @objc func getRecentsPictures(_ call: CAPPluginCall) {
@@ -559,15 +359,6 @@ func getAllAlbumsWithLastPicture(_ call: CAPPluginCall) {
             imageInfo["base64"] = data.base64EncodedString()
             imageResults.append(imageInfo)
 
-
-            let base64String = data.base64EncodedString()
-            encodedImages.append(base64String)
-            
-            /*
-            if encodedImages.count == result.count {
-                call.resolve(["pictures": encodedImages])
-            }
-            */
             if imageResults.count == result.count {
                     call.resolve(["pictures": imageResults])
             }
