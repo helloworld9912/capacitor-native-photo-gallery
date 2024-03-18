@@ -59,42 +59,6 @@ const AlbumDetails: React.FC = () => {
     }
   };
   
-
-  const fetchPhotos9 = async () => {
-    try {
-      const first_results =
-        await CapacitorNativePhotoGallery.getPhotosFromAlbum({
-          albumIdentifier: decodedId,
-          limit: 20,
-        });
-
-      setPhotos(first_results.pictures);
-
-      const more_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum(
-        {
-          albumIdentifier: decodedId,
-          alreadyFetchedIdentifiers: first_results.pictures.map(
-            p => p.localIdentifier,
-          ),
-          limit: 100,
-        },
-      );
-
-      let results_now = [...first_results.pictures, ...more_results.pictures];
-      setPhotos(results_now);
-
-      const all_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
-        albumIdentifier: decodedId,
-        alreadyFetchedIdentifiers: results_now.map(p => p.localIdentifier),
-        limit: 1000,
-      });
-
-      setPhotos([...results_now, ...all_results.pictures]);
-    } catch (error) {
-      console.error('Error fetching photos', error);
-    }
-  };
-
   const loadMoreItems = async () => {
     if (hasMore) {
       const more_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum(
@@ -179,6 +143,7 @@ const AlbumDetails: React.FC = () => {
         </div>
         <IonInfiniteScroll
         threshold='200px'
+        disabled={!hasMore}
         onIonInfinite={async (ev) => {
           await loadMoreItems();
           ev.target.complete();
