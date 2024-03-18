@@ -67,7 +67,11 @@ const getRecentPictures = async () => {
 ```javascript
 const getAlbums = async () => {
   try {
-    const result = await CapacitorNativePhotoGallery.getAlbums();
+    const result =
+      await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
+        includeRegularAlbums: true, //to include regular albums or not (default is true)
+        includeSmartAlbums: false, //to include smart albums or not (default is false)
+      });
     console.log(result.albums);
   } catch (error) {
     console.error;
@@ -82,10 +86,49 @@ const getSmartAlbums = async () => {
   try {
     const result =
       await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
+        includeRegularAlbums: false, //to include regular albums or not (default is true)
+        includeSmartAlbums: true, //to include smart albums or not (default is false)
+        includeEmptyAlbums: false, //to include empty albums or not (default is false)
+      });
+    console.log(result.albums);
+  } catch (error) {
+    console.error;
+  }
+};
+```
+
+### Get Hidden Albums
+
+```javascript
+const getHiddenAlbums = async () => {
+  try {
+    const result =
+      await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
+        includeRegularAlbums: false, //to include regular albums or not (default is true)
+        includeSmartAlbums: false, //to include smart albums or not (default is false)
+        includeEmptyAlbums: false, //to include empty albums or not (default is false)
+      });
+    console.log(result.albums);
+  } catch (error) {
+    console.error;
+  }
+};
+```
+
+### Get All Albums
+
+get all albums with last picture: regular, smart and hidden albums
+
+```javascript
+const getSmartAlbums = async () => {
+  try {
+    const result =
+      await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
         includeRegularAlbums: true, //to include regular albums or not (default is true)
         includeSmartAlbums: true, //to include smart albums or not (default is false)
+        includeEmptyAlbums: false, //to include empty albums or not (default is false)
       });
-    console.log(result.smartAlbums);
+    console.log(result.albums);
   } catch (error) {
     console.error;
   }
@@ -174,13 +217,13 @@ yarn && yarn build && npx cap sync
 
 <docgen-index>
 
-* [`checkPhotoLibraryPermission()`](#checkphotolibrarypermission)
-* [`requestPhotoLibraryPermission()`](#requestphotolibrarypermission)
-* [`getRecentsPictures(...)`](#getrecentspictures)
-* [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
-* [`getImageByIdentifier(...)`](#getimagebyidentifier)
-* [Interfaces](#interfaces)
-* [Type Aliases](#type-aliases)
+- [`checkPhotoLibraryPermission()`](#checkphotolibrarypermission)
+- [`requestPhotoLibraryPermission()`](#requestphotolibrarypermission)
+- [`getRecentsPictures(...)`](#getrecentspictures)
+- [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
+- [`getImageByIdentifier(...)`](#getimagebyidentifier)
+- [Interfaces](#interfaces)
+- [Type Aliases](#type-aliases)
 
 </docgen-index>
 
@@ -197,8 +240,7 @@ Checks the permission status to access the photo library.
 
 **Returns:** <code>Promise&lt;{ status: <a href="#permissionstatus">PermissionStatus</a>; }&gt;</code>
 
---------------------
-
+---
 
 ### requestPhotoLibraryPermission()
 
@@ -210,8 +252,7 @@ Requests permission to access the photo library.
 
 **Returns:** <code>Promise&lt;{ status: <a href="#permissionstatus">PermissionStatus</a>; }&gt;</code>
 
---------------------
-
+---
 
 ### getRecentsPictures(...)
 
@@ -227,8 +268,7 @@ Retrieves the most recent pictures from the photo library.
 
 **Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
 
---------------------
-
+---
 
 ### getPhotosFromAlbum(...)
 
@@ -244,8 +284,7 @@ Retrieves photos from a specific album
 
 **Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
 
---------------------
-
+---
 
 ### getImageByIdentifier(...)
 
@@ -261,11 +300,9 @@ Retrieves a specific image by its local identifier.
 
 **Returns:** <code>Promise&lt;{ picture: <a href="#pictureinfo">PictureInfo</a>; }&gt;</code>
 
---------------------
-
+---
 
 ### Interfaces
-
 
 #### PictureInfo
 
@@ -279,7 +316,6 @@ Retrieves a specific image by its local identifier.
 | **`height`**           | <code>number</code>                                   |
 | **`location`**         | <code>{ latitude: number; longitude: number; }</code> |
 
-
 #### AlbumInfo
 
 | Prop                  | Type                        |
@@ -289,9 +325,7 @@ Retrieves a specific image by its local identifier.
 | **`count`**           | <code>number</code>         |
 | **`lastPicture`**     | <code>string \| null</code> |
 
-
 ### Type Aliases
-
 
 #### PermissionStatus
 
@@ -304,7 +338,6 @@ Represents the different status of the photo library permission.
 
 <code>'notRequested' | 'denied' | 'granted' | 'limited'</code>
 
-
 #### sortOrder
 
 Represents the different sort orders for fetching images from the photo library.
@@ -313,7 +346,6 @@ Represents the different sort orders for fetching images from the photo library.
 - `descending`: Sorts the images in descending order. (newest first)
 
 <code>'ascending' | 'descending'</code>
-
 
 #### deliveryMode
 
@@ -325,7 +357,6 @@ Represents the different delivery modes for fetching images from the photo libra
 
 <code>'fast' | 'optimized' | 'highQuality'</code>
 
-
 #### resizeMode
 
 Represents the different resize modes for fetching images from the photo library.
@@ -335,7 +366,6 @@ Represents the different resize modes for fetching images from the photo library
 - `fast`: Resizes the image to a size that provides a balance between image quality and performance, efficiently resizes the image to a size similar to, or slightly larger than, the target size.
 
 <code>'none' | 'exact' | 'fast'</code>
-
 
 #### smartAlbumsOptions
 
@@ -347,7 +377,6 @@ The available Smart Album options are the same as the <a href="#smartalbums">`sm
 Example usage: `['recentlyAdded', 'favorites']` to include both "recentlyAdded" and "favorites" Smart Albums.
 
 <code>smartAlbums[]</code>
-
 
 #### smartAlbums
 
