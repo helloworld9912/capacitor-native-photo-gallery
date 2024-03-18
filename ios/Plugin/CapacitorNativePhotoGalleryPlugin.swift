@@ -164,7 +164,6 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
         format: "NOT (localIdentifier IN %@)", alreadyFetchedIdentifiers)
     }
 
-    print("limit: \(limit)")
     if limit > 0 {
       fetchOptions.fetchLimit = limit
     }
@@ -207,8 +206,8 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     requestOptions.deliveryMode = deliveryMode
     requestOptions.resizeMode = resizeMode
 
-    let maxLength: CGFloat = imageSize
-    var targetSize = CGSize(width: maxLength, height: maxLength)
+    let scale = UIScreen.main.scale
+    let targetSize = CGSize(width: CGFloat(imageSize) * scale, height: CGFloat(imageSize) * scale)
 
     // Enumerate (limited or all) photos in the selected album
     assetsFetchResult.enumerateObjects { (asset, index, stop) in
@@ -244,6 +243,7 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
 
     let includeRegularAlbums = call.getBool("includeRegularAlbums") ?? true
     let includeSmartAlbums = call.getBool("includeSmartAlbums") ?? false
+    let includeEmptyAlbums = call.getBool("includeEmptyAlbums") ?? false
 
     // Check if both includeRegularAlbums and includeSmartAlbums are false
     guard includeRegularAlbums || includeSmartAlbums else {
@@ -314,6 +314,15 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
             dispatchGroup.leave()  // Leave the group upon finishing the image request
           }
         } else {
+          if(includeEmptyAlbums){
+            // If there are no assets in the album, add the album to the list with no image
+            albumInfoList.append([
+              "localIdentifier": collection.localIdentifier,
+              "title": albumTitle,
+              "count": assetsFetchResult.count,
+              "lastPicture": NSNull(),
+            ])
+          }
           // If there are no assets in the album, leave the group immediately
           dispatchGroup.leave()
         }

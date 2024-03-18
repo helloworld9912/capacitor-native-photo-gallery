@@ -172,6 +172,7 @@ export interface CapacitorNativePhotoGalleryPlugin {
    *
    * @param includeRegularAlbums - Whether to include regular albums in the request (default: false).
    * @param includeSmartAlbums - Whether to include smart albums (ios) in the request (default: true).
+   * @param includeEmptyAlbums - Whether to include empty albums in the request (default: false).
    * @param smartAlbumsFilter - An array to specify which smart albums to include
    *
    * @returns A promise that resolves to an object containing an array of requested albums with their information.
@@ -179,6 +180,7 @@ export interface CapacitorNativePhotoGalleryPlugin {
   getAllAlbumsWithLastPicture: (options: {
     includeRegularAlbums?: boolean;
     includeSmartAlbums?: boolean;
+    includeEmptyAlbums?: boolean;
     smartAlbumsFilter?: smartAlbumsOptions;
   }) => Promise<{ albums: AlbumInfo[] }>;
 

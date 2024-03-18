@@ -2,7 +2,7 @@ import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from 
 import { CapacitorNativePhotoGallery, AlbumInfo } from 'capacitor-native-photo-gallery';
 import { useEffect, useState } from 'react';
 import { useHistory } from "react-router-dom";
-
+import { Images } from 'lucide-react';
 
 const Tab2: React.FC = () => {
 
@@ -16,6 +16,7 @@ const Tab2: React.FC = () => {
       const result = await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
         includeRegularAlbums: true,
         includeSmartAlbums: true,
+        includeEmptyAlbums: true,
       });
       console.log(result);
       setAlbums(result.albums);
@@ -72,12 +73,17 @@ const Tab2: React.FC = () => {
               <div 
               onClick={()=> handleGoToAlbumPage(album?.localIdentifier, album?.title, album?.count)}
               className='flex space-x-2 mb-4'>
+                {album?.count > 0 ? (
               <img
                 key={index}
                 className="w-[6rem] h-[6rem] rounded-xl object-cover"
                 src={`data:image/jpeg;base64,${album?.lastPicture}`}
                 alt={`Photo ${index}`}
-              />
+              />): (
+                <div className='w-[6rem] h-[6rem] bg-gray-900 rounded-xl flex items-center'>
+                  <Images className='w-[3rem] h-[3rem] m-auto text-gray-800'/>
+                </div>
+              )}
               <div className='pt-0'>
               <h2 className='text-white text-xl font-semibold p-0 -pt-2'>{album?.title}</h2>
               <p className='text-slate-300'>{album?.count} photos</p>
