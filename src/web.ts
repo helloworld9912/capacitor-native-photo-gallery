@@ -1,17 +1,17 @@
 // src/web.ts
 import { WebPlugin } from '@capacitor/core';
 import type { CapacitorNativePhotoGalleryPlugin } from './definitions';
-import { PictureInfo, AlbumInfo } from './definitions';
+import { PictureInfo, AlbumInfo, PermissionStatus } from './definitions';
 
 export class CapacitorNativePhotoGalleryWeb extends WebPlugin implements CapacitorNativePhotoGalleryPlugin {
   
-  async checkPhotoLibraryPermission(): Promise<{ status: string }> {
+  async checkPhotoLibraryPermission(): Promise<{ status: PermissionStatus }> {
     // Not applicable for web, so you can return a default or handle accordingly
     console.warn('Web platform does not require photo library permissions.');
     return { status: 'granted' }; // or 'notRequested' maybe more suitable
   }
 
-  async requestPhotoLibraryPermission(): Promise<{ status: string }> {
+  async requestPhotoLibraryPermission(): Promise<{ status: PermissionStatus }> {
     // Not applicable for web, so you can resolve immediately
     console.warn('Web platform cannot request photo library permissions.');
     return { status: 'granted' }; // or 'notRequested' maybe more suitable

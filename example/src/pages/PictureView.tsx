@@ -26,7 +26,7 @@ const ImageLoader = ({ preview, full }:ImageLoaderProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
-    <div className="relative flex justify-center items-center w-full h-full mb-16">
+    <div className="relative flex justify-center items-center w-full h-full">
       {/* Image de basse qualité */}
       <img
         className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ease-in-out ${imageLoaded ? 'opacity-0' : 'opacity-100'}`}
@@ -91,7 +91,7 @@ const PictureView: React.FC = () => {
           <IonTitle>{''}</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="bg-black">
+      <IonContent className="bg-black pb-[100px]">
 
       <ImageLoader preview={atomPreviewPicture} full={photo?.base64} />
 

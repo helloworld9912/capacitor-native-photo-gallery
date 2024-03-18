@@ -13,7 +13,10 @@ const Tab2: React.FC = () => {
   const fetchAlbums = async () => {
     try {
 
-      const result = await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture();
+      const result = await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
+        includeRegularAlbums: true,
+        includeSmartAlbums: true,
+      });
       console.log(result);
       setAlbums(result.albums);
 
@@ -22,12 +25,13 @@ const Tab2: React.FC = () => {
     }
   };
 
-  const handleGoToAlbumPage = (id: string, title:string) => {
+  const handleGoToAlbumPage = (id: string, title:string, count: number) => {
     const encodedId = encodeURIComponent(id);
     const encodedTitle = encodeURIComponent(title);
+    const encodedCount = encodeURIComponent(count.toString());
     console.log('Go to album page:', title);
-    console.log('Navigate to:', `/album/${id}/${title}`)
-    history.push(`/album/${encodedId}/${encodedTitle}`);
+    console.log('Navigate to:', `/album/${id}/${title}/${count}`)
+    history.push(`/album/${encodedId}/${encodedTitle}/${encodedCount}`);
   }
 
   const showTabs = () => {
@@ -66,7 +70,7 @@ const Tab2: React.FC = () => {
           <div className="grid grid-cols-1 mb-[100px]">
             {albums.map((album, index) => (
               <div 
-              onClick={()=> handleGoToAlbumPage(album?.localIdentifier, album?.title)}
+              onClick={()=> handleGoToAlbumPage(album?.localIdentifier, album?.title, album?.count)}
               className='flex space-x-2 mb-4'>
               <img
                 key={index}

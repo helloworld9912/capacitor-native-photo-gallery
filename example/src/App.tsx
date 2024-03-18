@@ -76,7 +76,7 @@ const App: React.FC  = () => {
             <Route exact path="/">
               <Redirect to="/tab1" />
             </Route>
-            <Route exact path="/album/:id/:title">
+            <Route exact path="/album/:id/:title/:count">
               <AlbumDetails />
             </Route>
             <Route exact path="/picture/:id">

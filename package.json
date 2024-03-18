@@ -1,6 +1,6 @@
 {
   "name": "capacitor-native-photo-gallery",
-  "version": "0.1.11",
+  "version": "0.1.18",
   "description": "A native photo gallery integration for Ionic apps, providing seamless access and display of user photos within the app's UI.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

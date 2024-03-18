@@ -12,68 +12,122 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonButton,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 } from '@ionic/react';
 
-import { useHistory } from "react-router-dom";
-
-import { useAtom } from 'jotai';
+import { useHistory } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 import { previewPicture } from '../atom/global';
 
 type RouteParams = {
   id: string;
   title: string;
+  count: string;
 };
+
+const PAGE_SIZE = 24;
 
 const AlbumDetails: React.FC = () => {
   const [photos, setPhotos] = useState<PictureInfo[]>([]);
+  const [alreadyFetchedIdentifiers, setAlreadyFetchedIdentifiers] = useState<string[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const setSelectedPreviewPhoto = useSetAtom(previewPicture);
 
-  const [selectedPreviewPhoto, setSelectedPreviewPhoto] = useAtom(previewPicture);
-
-  const { id, title } = useParams<RouteParams>();
+  const { id, title, count } = useParams<RouteParams>();
   const decodedId = decodeURIComponent(id);
   const decodedTitle = decodeURIComponent(title);
+  const decodedCount = decodeURIComponent(count);
+  const countNumber = parseInt(decodedCount); //convert to number
 
   const history = useHistory();
 
-  const fetchPhotos = async () => {
+  const fetchPhotos = async (limit:number) => {
     try {
-      const first_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
+      const initialResults = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
         albumIdentifier: decodedId,
-        limit: 21
+        limit: limit
       });
-      
-      console.log(first_results);
+  
+      setPhotos(initialResults.pictures);
+      setAlreadyFetchedIdentifiers(initialResults.pictures.map(p => p.localIdentifier));
+      if (initialResults.pictures.length < limit) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error fetching photos', error);
+    }
+  };
+  
+
+  const fetchPhotos9 = async () => {
+    try {
+      const first_results =
+        await CapacitorNativePhotoGallery.getPhotosFromAlbum({
+          albumIdentifier: decodedId,
+          limit: 20,
+        });
 
       setPhotos(first_results.pictures);
 
+      const more_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum(
+        {
+          albumIdentifier: decodedId,
+          alreadyFetchedIdentifiers: first_results.pictures.map(
+            p => p.localIdentifier,
+          ),
+          limit: 100,
+        },
+      );
+
+      let results_now = [...first_results.pictures, ...more_results.pictures];
+      setPhotos(results_now);
+
       const all_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
         albumIdentifier: decodedId,
+        alreadyFetchedIdentifiers: results_now.map(p => p.localIdentifier),
+        limit: 1000,
       });
 
-      setPhotos(all_results.pictures);
-
+      setPhotos([...results_now, ...all_results.pictures]);
     } catch (error) {
       console.error('Error fetching photos', error);
     }
   };
 
-  console.log({
-    id,
-    title,
-  });
+  const loadMoreItems = async () => {
+    if (hasMore) {
+      const more_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum(
+        {
+          albumIdentifier: decodedId,
+          alreadyFetchedIdentifiers: alreadyFetchedIdentifiers,
+          limit: PAGE_SIZE,
+        },
+      );
+      if (more_results.pictures.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
+      setPhotos([...photos, ...more_results.pictures]);
+      setAlreadyFetchedIdentifiers([
+        ...alreadyFetchedIdentifiers,
+        ...more_results.pictures.map(p => p.localIdentifier),
+      ]);
+      return true
+    }
+    return true
+  }
 
   useEffect(() => {
     //fetch photos on page load
-    fetchPhotos();
+    fetchPhotos(PAGE_SIZE);
   }, []);
 
-  const handleGoToPicturePage = (id: string, base64:string) => {
+  const handleGoToPicturePage = (id: string, base64: string) => {
     setSelectedPreviewPhoto(base64);
     const encodedId = encodeURIComponent(id);
     history.push(`/picture/${encodedId}`);
-  }
-  
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -82,7 +136,7 @@ const AlbumDetails: React.FC = () => {
           <IonTitle>{decodedTitle ?? 'album title'}</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen className='bg-black'>
+      <IonContent fullscreen className="bg-black">
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle className="ml-0 pl-0" size="large">
@@ -90,21 +144,48 @@ const AlbumDetails: React.FC = () => {
             </IonTitle>
           </IonToolbar>
         </IonHeader>
-        <div className="px-2">
-          <p className='hidden'>Album Identifier: {decodedId ?? 'unknown'}</p>
-          <IonButton className='hidden' onClick={fetchPhotos}>Get Photos</IonButton>
+        <div className="px-2">      
         </div>
-        <div className="grid grid-cols-3 gap-[2px]">
-          {photos?.map((photo, index) => (
-            <img
-              onClick={()=> handleGoToPicturePage(photo?.localIdentifier, photo?.base64)}
-              key={index}
-              className="w-full h-[7rem] object-cover"
-              src={`data:image/jpeg;base64,${photo?.base64}`}
-              alt={`Photo ${index}`}
-            />
-          ))}
+        <div className="grid grid-cols-3 gap-[2px] mb-[95px]">
+          {photos?.length === 0 ||
+            (countNumber === 0 && (
+              <p className="text-center">No photos found</p>
+            ))}
+
+          {photos && photos.length > 0 ? (
+            <>
+              {photos?.map((photo, index) => (
+                <img
+                  onClick={() =>
+                    handleGoToPicturePage(photo?.localIdentifier, photo?.base64)
+                  }
+                  key={index}
+                  className="w-full h-[7rem] object-cover"
+                  src={`data:image/jpeg;base64,${photo?.base64}`}
+                  alt={`Photo ${index}`}
+                />
+              ))}
+            </>
+          ) : (
+            <>
+              {Array.from(
+                { length: Math.min(countNumber, 300) }, //performace optimization
+                (_, index) => (
+                  <div key={index} className="w-full h-[7rem] bg-gray-800" />
+                ),
+              )}
+            </>
+          )}
         </div>
+        <IonInfiniteScroll
+        threshold='200px'
+        onIonInfinite={async (ev) => {
+          await loadMoreItems();
+          ev.target.complete();
+        }}
+      >
+        <IonInfiniteScrollContent></IonInfiniteScrollContent>
+      </IonInfiniteScroll>
       </IonContent>
     </IonPage>
   );
