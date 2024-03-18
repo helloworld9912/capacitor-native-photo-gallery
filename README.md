@@ -126,7 +126,7 @@ const getSmartAlbums = async () => {
       await CapacitorNativePhotoGallery.getAllAlbumsWithLastPicture({
         includeRegularAlbums: true, //to include regular albums or not (default is true)
         includeSmartAlbums: true, //to include smart albums or not (default is false)
-        includeEmptyAlbums: false, //to include empty albums or not (default is false)
+        includeEmptyAlbums: true, //to include empty albums or not (default is false)
       });
     console.log(result.albums);
   } catch (error) {
