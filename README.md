@@ -141,9 +141,9 @@ const getSmartAlbums = async () => {
 const getPhotosFromAlbum = async () => {
   try {
     const result = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
-      albumIdentifier: 'albumIdentifier',
-      sortOrder: 'descending',
-      limit: 12, // default is all photos (can be laggy if there are many photos)
+      albumIdentifier: 'albumIdentifier', //use the localIdentifier of the album
+      sortOrder: 'descending', //to get oldest pictures first, use 'ascending'
+      limit: 12, // get all photos if not provided (can be laggy if there are many photos)
     });
     console.log(result.pictures);
   } catch (error) {
@@ -154,7 +154,57 @@ const getPhotosFromAlbum = async () => {
 
 ### Album pagination
 
-Need to write the documentation for album pagination here...
+To implement an efficient pagination for albums, you can use the `alreadyFetchedIdentifiers` option to fetch more photos from the album by passing the already fetched identifiers.
+
+```javascript
+
+  const PAGE_SIZE = 24;
+
+  const [photos, setPhotos] = useState<PictureInfo[]>([]);
+  const [alreadyFetchedIdentifiers, setAlreadyFetchedIdentifiers] = useState<string[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
+
+ const fetchPhotos = async (limit:number) => {
+    try {
+      const initialResults = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
+        albumIdentifier: decodedId,
+        limit: limit,
+      });
+
+      setPhotos(initialResults.pictures);
+      setAlreadyFetchedIdentifiers(initialResults.pictures.map(p => p.localIdentifier));
+      if (initialResults.pictures.length < limit) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error fetching photos', error);
+    }
+  };
+
+
+   const loadMoreItems = async () => {
+    if (hasMore) {
+      const more_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum(
+        {
+          albumIdentifier: decodedId,
+          alreadyFetchedIdentifiers: alreadyFetchedIdentifiers,
+          limit: PAGE_SIZE,
+        },
+      );
+      if (more_results.pictures.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
+      setPhotos([...photos, ...more_results.pictures]);
+      setAlreadyFetchedIdentifiers([
+        ...alreadyFetchedIdentifiers,
+        ...more_results.pictures.map(p => p.localIdentifier),
+      ]);
+      return true
+    }
+    return true
+  }
+```
 
 ### Get image by identifier
 
