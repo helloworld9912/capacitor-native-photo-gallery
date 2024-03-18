@@ -30,7 +30,9 @@ const PAGE_SIZE = 24;
 
 const AlbumDetails: React.FC = () => {
   const [photos, setPhotos] = useState<PictureInfo[]>([]);
-  const [alreadyFetchedIdentifiers, setAlreadyFetchedIdentifiers] = useState<string[]>([]);
+  const [alreadyFetchedIdentifiers, setAlreadyFetchedIdentifiers] = useState<
+    string[]
+  >([]);
   const [hasMore, setHasMore] = useState(true);
   const setSelectedPreviewPhoto = useSetAtom(previewPicture);
 
@@ -42,15 +44,18 @@ const AlbumDetails: React.FC = () => {
 
   const history = useHistory();
 
-  const fetchPhotos = async (limit:number) => {
+  const fetchPhotos = async (limit: number) => {
     try {
-      const initialResults = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
-        albumIdentifier: decodedId,
-        limit: limit,
-      });
-  
+      const initialResults =
+        await CapacitorNativePhotoGallery.getPhotosFromAlbum({
+          albumIdentifier: decodedId,
+          limit: limit,
+        });
+
       setPhotos(initialResults.pictures);
-      setAlreadyFetchedIdentifiers(initialResults.pictures.map(p => p.localIdentifier));
+      setAlreadyFetchedIdentifiers(
+        initialResults.pictures.map(p => p.localIdentifier),
+      );
       if (initialResults.pictures.length < limit) {
         setHasMore(false);
       }
@@ -58,7 +63,7 @@ const AlbumDetails: React.FC = () => {
       console.error('Error fetching photos', error);
     }
   };
-  
+
   const loadMoreItems = async () => {
     if (hasMore) {
       const more_results = await CapacitorNativePhotoGallery.getPhotosFromAlbum(
@@ -76,10 +81,10 @@ const AlbumDetails: React.FC = () => {
         ...alreadyFetchedIdentifiers,
         ...more_results.pictures.map(p => p.localIdentifier),
       ]);
-      return true
+      return true;
     }
-    return true
-  }
+    return true;
+  };
 
   useEffect(() => {
     //fetch photos on page load
@@ -108,14 +113,9 @@ const AlbumDetails: React.FC = () => {
             </IonTitle>
           </IonToolbar>
         </IonHeader>
-        <div className="px-2">      
-        </div>
+        <div className="px-2"></div>
+        {countNumber === 0 && <p className="text-center text-lg font-semibold mt-[200px]">No photos found</p>}
         <div className="grid grid-cols-3 gap-[2px] mb-[95px]">
-          {photos?.length === 0 ||
-            (countNumber === 0 && (
-              <p className="text-center">No photos found</p>
-            ))}
-
           {photos && photos.length > 0 ? (
             <>
               {photos?.map((photo, index) => (
@@ -142,15 +142,15 @@ const AlbumDetails: React.FC = () => {
           )}
         </div>
         <IonInfiniteScroll
-        threshold='200px'
-        disabled={!hasMore}
-        onIonInfinite={async (ev) => {
-          await loadMoreItems();
-          ev.target.complete();
-        }}
-      >
-        <IonInfiniteScrollContent></IonInfiniteScrollContent>
-      </IonInfiniteScroll>
+          threshold="200px"
+          disabled={!hasMore}
+          onIonInfinite={async ev => {
+            await loadMoreItems();
+            ev.target.complete();
+          }}
+        >
+          <IonInfiniteScrollContent></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
       </IonContent>
     </IonPage>
   );

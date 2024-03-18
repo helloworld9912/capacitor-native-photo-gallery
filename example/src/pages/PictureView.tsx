@@ -22,28 +22,43 @@ interface ImageLoaderProps {
   preview: string;
   full: string;
 }
-const ImageLoader = ({ preview, full }:ImageLoaderProps) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
+
+const ImageLoader = ({ preview, full }: ImageLoaderProps) => {
+  const [highQualityImageLoaded, setHighQualityImageLoaded] = useState(false);
+
+  // Preload high-quality image
+  useEffect(() => {
+    const imageToLoad = new Image();
+    imageToLoad.src = `data:image/jpeg;base64,${full}`;
+    imageToLoad.onload = () => {
+      setHighQualityImageLoaded(true);
+    };
+  }, [full]); // Dependency array ensures this only reruns if `full` changes
 
   return (
     <div className="relative flex justify-center items-center w-full h-full">
-      {/* Image de basse qualité */}
+      {/* Low-quality image */}
       <img
-        className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ease-in-out ${imageLoaded ? 'opacity-0' : 'opacity-100'}`}
+        className={`absolute inset-0 w-full h-full object-contain transition-opacity 
+        duration-300 ease-in-out ${highQualityImageLoaded ? 'opacity-0' : 'opacity-100'}`}
         src={`data:image/jpeg;base64,${preview}`}
-        alt="Aperçu de la photo"
+        alt="Preview of the photo"
+        style={{ transitionDelay: highQualityImageLoaded ? '0ms' : '300ms' }} // Delay the disappearance of preview
       />
 
-      {/* Image en pleine qualité */}
+      {/* High-quality image */}
       <img
-        className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`w-full h-full object-contain transition-opacity duration-300 ease-in-out 
+        ${highQualityImageLoaded ? 'opacity-100' : 'opacity-0'}`}
         src={`data:image/jpeg;base64,${full}`}
-        alt="Photo en pleine qualité"
-        onLoad={() => setImageLoaded(true)}
+        alt="High-quality photo"
+        // No onLoad here as we are preloading it above
+        style={{ display: highQualityImageLoaded ? 'block' : 'none' }} // Use `display` to prevent image from occupying space until it's loaded
       />
     </div>
   );
 };
+
 
 
 type RouteParams = {

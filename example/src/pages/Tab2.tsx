@@ -66,7 +66,6 @@ const Tab2: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <div className="px-4">
-          <IonButton className="hidden" onClick={fetchAlbums}>Get Albums</IonButton>
           <h1>My Albums</h1>
           <div className="grid grid-cols-1 mb-[100px]">
             {albums.map((album, index) => (
@@ -80,8 +79,8 @@ const Tab2: React.FC = () => {
                 src={`data:image/jpeg;base64,${album?.lastPicture}`}
                 alt={`Photo ${index}`}
               />): (
-                <div className='w-[6rem] h-[6rem] bg-gray-900 rounded-xl flex items-center'>
-                  <Images className='w-[3rem] h-[3rem] m-auto text-gray-800'/>
+                <div className='w-[6rem] h-[6rem] bg-gray-900/60 rounded-xl flex items-center'>
+                  <Images className='w-[2rem] h-[2rem] m-auto text-gray-800'/>
                 </div>
               )}
               <div className='pt-0'>
