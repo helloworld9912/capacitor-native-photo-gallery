@@ -46,7 +46,7 @@ const AlbumDetails: React.FC = () => {
     try {
       const initialResults = await CapacitorNativePhotoGallery.getPhotosFromAlbum({
         albumIdentifier: decodedId,
-        limit: limit
+        limit: limit,
       });
   
       setPhotos(initialResults.pictures);

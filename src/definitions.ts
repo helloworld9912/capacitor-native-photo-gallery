@@ -188,6 +188,9 @@ export interface CapacitorNativePhotoGalleryPlugin {
    * @param albumIdentifier - The local identifier of the album to fetch photos from. (required)
    * @param limit - The maximum number of photos to fetch, for optimizing performance. (gets all photos if not specified)
    * @param alreadyFetchedIdentifiers - An array of local identifiers of photos that have already been fetched, for optimizing performance, and for creating pagination (optional)
+   * @param deliveryMode - The delivery mode for fetching the images. (default: 'fast')
+   * @param resizeMode - The resize mode for fetching the images. (default: 'fast')
+   * @param imageSize - The size of the images to fetch in pixels. (default: 150) - images are fetched at 150x150 pixels square (thumbnail size)
    *
    * @returns A promise that resolves to an object containing an array of requested albums with their information.
    */
@@ -195,6 +198,9 @@ export interface CapacitorNativePhotoGalleryPlugin {
     albumIdentifier: string;
     sortOrder?: sortOrder;
     limit?: number;
+    deliveryMode?: deliveryMode;
+    resizeMode?: resizeMode;
+    imageSize?: number;
     alreadyFetchedIdentifiers?: string[]; //provide a way to paginate results (performance)
   }): Promise<{ pictures: PictureInfo[] }>;
 

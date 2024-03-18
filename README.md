@@ -174,13 +174,13 @@ yarn && yarn build && npx cap sync
 
 <docgen-index>
 
-- [`checkPhotoLibraryPermission()`](#checkphotolibrarypermission)
-- [`requestPhotoLibraryPermission()`](#requestphotolibrarypermission)
-- [`getRecentsPictures(...)`](#getrecentspictures)
-- [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
-- [`getImageByIdentifier(...)`](#getimagebyidentifier)
-- [Interfaces](#interfaces)
-- [Type Aliases](#type-aliases)
+* [`checkPhotoLibraryPermission()`](#checkphotolibrarypermission)
+* [`requestPhotoLibraryPermission()`](#requestphotolibrarypermission)
+* [`getRecentsPictures(...)`](#getrecentspictures)
+* [`getPhotosFromAlbum(...)`](#getphotosfromalbum)
+* [`getImageByIdentifier(...)`](#getimagebyidentifier)
+* [Interfaces](#interfaces)
+* [Type Aliases](#type-aliases)
 
 </docgen-index>
 
@@ -197,7 +197,8 @@ Checks the permission status to access the photo library.
 
 **Returns:** <code>Promise&lt;{ status: <a href="#permissionstatus">PermissionStatus</a>; }&gt;</code>
 
----
+--------------------
+
 
 ### requestPhotoLibraryPermission()
 
@@ -209,7 +210,8 @@ Requests permission to access the photo library.
 
 **Returns:** <code>Promise&lt;{ status: <a href="#permissionstatus">PermissionStatus</a>; }&gt;</code>
 
----
+--------------------
+
 
 ### getRecentsPictures(...)
 
@@ -225,23 +227,25 @@ Retrieves the most recent pictures from the photo library.
 
 **Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
 
----
+--------------------
+
 
 ### getPhotosFromAlbum(...)
 
 ```typescript
-getPhotosFromAlbum(options: { albumIdentifier: string; sortOrder?: sortOrder; limit?: number; alreadyFetchedIdentifiers?: string[]; }) => Promise<{ pictures: PictureInfo[]; }>
+getPhotosFromAlbum(options: { albumIdentifier: string; sortOrder?: sortOrder; limit?: number; deliveryMode?: deliveryMode; resizeMode?: resizeMode; imageSize?: number; alreadyFetchedIdentifiers?: string[]; }) => Promise<{ pictures: PictureInfo[]; }>
 ```
 
 Retrieves photos from a specific album
 
-| Param         | Type                                                                                                                                                                     |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`options`** | <code>{ albumIdentifier: string; <a href="#sortorder">sortOrder</a>?: <a href="#sortorder">sortOrder</a>; limit?: number; alreadyFetchedIdentifiers?: string[]; }</code> |
+| Param         | Type                                                                                                                                                                                                                                                                                                                                                           |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`options`** | <code>{ albumIdentifier: string; <a href="#sortorder">sortOrder</a>?: <a href="#sortorder">sortOrder</a>; limit?: number; <a href="#deliverymode">deliveryMode</a>?: <a href="#deliverymode">deliveryMode</a>; <a href="#resizemode">resizeMode</a>?: <a href="#resizemode">resizeMode</a>; imageSize?: number; alreadyFetchedIdentifiers?: string[]; }</code> |
 
 **Returns:** <code>Promise&lt;{ pictures: PictureInfo[]; }&gt;</code>
 
----
+--------------------
+
 
 ### getImageByIdentifier(...)
 
@@ -257,9 +261,11 @@ Retrieves a specific image by its local identifier.
 
 **Returns:** <code>Promise&lt;{ picture: <a href="#pictureinfo">PictureInfo</a>; }&gt;</code>
 
----
+--------------------
+
 
 ### Interfaces
+
 
 #### PictureInfo
 
@@ -273,6 +279,7 @@ Retrieves a specific image by its local identifier.
 | **`height`**           | <code>number</code>                                   |
 | **`location`**         | <code>{ latitude: number; longitude: number; }</code> |
 
+
 #### AlbumInfo
 
 | Prop                  | Type                        |
@@ -282,7 +289,9 @@ Retrieves a specific image by its local identifier.
 | **`count`**           | <code>number</code>         |
 | **`lastPicture`**     | <code>string \| null</code> |
 
+
 ### Type Aliases
+
 
 #### PermissionStatus
 
@@ -295,6 +304,7 @@ Represents the different status of the photo library permission.
 
 <code>'notRequested' | 'denied' | 'granted' | 'limited'</code>
 
+
 #### sortOrder
 
 Represents the different sort orders for fetching images from the photo library.
@@ -303,6 +313,7 @@ Represents the different sort orders for fetching images from the photo library.
 - `descending`: Sorts the images in descending order. (newest first)
 
 <code>'ascending' | 'descending'</code>
+
 
 #### deliveryMode
 
@@ -314,6 +325,7 @@ Represents the different delivery modes for fetching images from the photo libra
 
 <code>'fast' | 'optimized' | 'highQuality'</code>
 
+
 #### resizeMode
 
 Represents the different resize modes for fetching images from the photo library.
@@ -323,6 +335,7 @@ Represents the different resize modes for fetching images from the photo library
 - `fast`: Resizes the image to a size that provides a balance between image quality and performance, efficiently resizes the image to a size similar to, or slightly larger than, the target size.
 
 <code>'none' | 'exact' | 'fast'</code>
+
 
 #### smartAlbumsOptions
 
@@ -334,6 +347,7 @@ The available Smart Album options are the same as the <a href="#smartalbums">`sm
 Example usage: `['recentlyAdded', 'favorites']` to include both "recentlyAdded" and "favorites" Smart Albums.
 
 <code>smartAlbums[]</code>
+
 
 #### smartAlbums
 

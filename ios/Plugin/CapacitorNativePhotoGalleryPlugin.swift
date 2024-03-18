@@ -68,9 +68,7 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     }
 
     let deliveryModeString = call.getString("deliveryMode") ?? "highQualityFormat"  // Default delivery mode
-    print("deliveryModeString: \(deliveryModeString)")
     let resizeModeString = call.getString("resizeMode") ?? "fast"  // Default resize mode
-    print("resizeModeString: \(resizeModeString)")
 
     let requestOptions = PHImageRequestOptions()
     requestOptions.isNetworkAccessAllowed = true  // Allows fetching from iCloud if necessary
@@ -98,12 +96,7 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     }
 
     requestOptions.deliveryMode = deliveryMode
-    print("deliveryMode: \(deliveryMode)")
     requestOptions.resizeMode = resizeMode
-    print("resizeMode: \(resizeMode)")
-
-    //requestOptions.deliveryMode = .highQualityFormat // Request full-quality image
-    //requestOptions.resizeMode = .exact // Do not resize
 
     PHImageManager.default().requestImageDataAndOrientation(for: asset, options: requestOptions) {
       imageData, dataUTI, _, info in
@@ -157,6 +150,9 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     let fetchOrder = call.getString("sortOrder") ?? "descending"  // Fallback to "ascending"
     let isAscending = fetchOrder == "ascending"
     let limit = call.getInt("limit") ?? 0  // Limit for pagination
+    let deliveryModeString = call.getString("deliveryMode") ?? "highQualityFormat"  // Default delivery mode
+    let resizeModeString = call.getString("resizeMode") ?? "fast"  // Default resize mode
+    let imageSize = call.getInt("imageSize") ?? 150  // Fallback to 150px if not provided
 
     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: isAscending)]
 
@@ -183,10 +179,35 @@ public class CapacitorNativePhotoGalleryPlugin: CAPPlugin {
     // Use requestOptions for requesting image data
     let requestOptions = PHImageRequestOptions()
     requestOptions.isNetworkAccessAllowed = true  // Allows photos to be fetched from iCloud if necessary
-    requestOptions.deliveryMode = .highQualityFormat  // Request high-quality images
-    requestOptions.resizeMode = .exact  // Resize images to the specified targetSize
 
-    let maxLength: CGFloat = 150
+    let deliveryMode: PHImageRequestOptionsDeliveryMode
+    switch deliveryModeString.lowercased() {
+    case "optimized":
+      deliveryMode = .opportunistic
+    case "fast":
+      deliveryMode = .fastFormat
+    case "highQuality":
+      deliveryMode = .highQualityFormat
+    default:
+      deliveryMode = .fastFormat
+    }
+
+    let resizeMode: PHImageRequestOptionsResizeMode
+    switch resizeModeString.lowercased() {
+    case "exact":
+      resizeMode = .exact
+    case "none":
+      resizeMode = .none
+    case "fast":
+      resizeMode = .fast
+    default:
+      resizeMode = .fast
+    }
+
+    requestOptions.deliveryMode = deliveryMode
+    requestOptions.resizeMode = resizeMode
+
+    let maxLength: CGFloat = imageSize
     var targetSize = CGSize(width: maxLength, height: maxLength)
 
     // Enumerate (limited or all) photos in the selected album
